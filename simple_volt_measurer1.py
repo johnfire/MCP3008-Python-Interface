@@ -7,6 +7,8 @@
 #
 #   This does not use i2c or spi interfacing. makes it simpler for beginner experimentation
 #
+#   it also writes the data to a text file called AD_converted_data_at_time_blah_blah
+#
 #
 #
 #
@@ -25,6 +27,7 @@
 
 import RPi.GPIO as GPIO
 import time
+import datetime
 import pprint
 
 ################################################
@@ -201,7 +204,10 @@ def convertToV ():
 
 ################################
 try:
-    setup()  
+    setup() 
+    filename ="AD_Converted_Data_At_" + datetime.datetime.now().strftime("%I:%M:%S_%p_on_%B_%d_%Y")
+    
+    file = open(filename, 'w') 
     print("This program  takes data from an MCP3008 and outputs it to the terminal. It works on all 8 channels.")
     print("You can rewrite the program to output to a file or other location.")  
     print("Would you like to run the voltage analysis? Type y to start. Any other character ends the program")
@@ -227,10 +233,11 @@ try:
             if DEBUG == True:
                 pprint.pprint(matrix)
             print ("TimeHack: %1d volts: %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   " % (timeHack,  voltages[0],voltages[1],voltages[2],voltages[3],voltages[4],voltages[5],voltages[6],voltages[7]))
+            file.write("TimeHack: %1d volts: %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f   %2.3f  \n" % (timeHack,  voltages[0],voltages[1],voltages[2],voltages[3],voltages[4],voltages[5],voltages[6],voltages[7]))
             timeHack += 1
             time.sleep(sampleInterval)
 
 except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the flowing code will be  executed.
-
+    file.close()
     GPIO.cleanup()                     # Release resource
 
